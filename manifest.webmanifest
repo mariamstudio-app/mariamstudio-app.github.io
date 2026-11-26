@@ -1,23 +1,25 @@
 {
- "name": "مريم",
- "short_name": "مريم",
+ "name": "مَرْيَم",
+ "short_name": "مَرْيَم",
  "lang": "ar",
  "dir": "rtl",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
- "background_color": "#fff8f9",
- "theme_color": "#fff8f9",
+ "background_color": "#840514",
+ "theme_color": "#100e16",
  "icons": [
   {
    "src": "icons/icon-192.png",
    "sizes": "192x192",
-   "type": "image/png"
+   "type": "image/png",
+   "purpose": "any"
   },
   {
    "src": "icons/icon-512.png",
    "sizes": "512x512",
-   "type": "image/png"
+   "type": "image/png",
+   "purpose": "any"
   },
   {
    "src": "icons/icon-maskable.png",
