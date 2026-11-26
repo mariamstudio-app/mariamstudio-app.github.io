@@ -181,4 +181,4 @@ async function nbReader(start=1){const ids=nbPages();if(!ids)return;const ov=doc
  ov.querySelector('#nbJump').onclick=()=>jump(+ov.querySelector('#nbGoto').value);ov.querySelector('#nbClose').onclick=()=>{io.disconnect();Object.values(urls).forEach(URL.revokeObjectURL);try{localStorage.setItem('nbLast',cur)}catch(e){}ov.remove()};
  const last=+(localStorage.getItem('nbLast')||start);if(last>1)setTimeout(()=>jump(last),100);}
 const _bind2=bind;bind=function(){_bind2();on('nbRead',()=>nbReader());document.querySelectorAll('[data-nb-import]').forEach(b=>b.onclick=nbImport)};
-</script></body></html>
+</script><script src="extra.js"></script></body></html>
