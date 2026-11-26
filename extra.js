@@ -115,7 +115,7 @@ const _more4=more;window.more=more=function(){const h=_more4();const t=(id,ic,n,
 const _b4=bind;window.bind=bind=function(){_b4();on('schedTile',()=>schedDlg());on('wtabTile',()=>worshipTable())};
 
 /* ---- books & reading: standalone tile on الرئيسية (own icon), no longer inside المزيد ---- */
-const _home5=home;window.home=home=function(){const h=_home5();const t='<div class="grid" style="margin:14px 0"><button class="tile" id="bookTile"><span class="ico">'+icon('sk_books')+'</span><strong>كتبي وقراءتي</strong><small>الكتب والاقتباسات والملاحظات</small></button></div>';const i=h.indexOf('<div class="card"');return i<0?h+t:h.slice(0,i)+t+h.slice(i)};
+const _home5=home;window.home=home=function(){const h=_home5();const t='<button class="tile" id="bookTile"><span class="ico">'+icon('sk_books')+'</span><strong>كتبي وقراءتي</strong><small>الكتب والاقتباسات والملاحظات</small></button>';const gi=h.indexOf('<div class="grid">');const e=gi<0?-1:h.indexOf('</div>',gi);return e<0?h+'<div class="grid">'+t+'</div>':h.slice(0,e)+t+h.slice(e)};
 const _more5=more;window.more=more=function(){let h=_more5();const re=/<button class="tile" id="bookTile">[\s\S]*?<\/button>/;return h.replace(re,'')};
 const st=document.createElement('style');st.textContent='.celeb{font-size:22px;color:#c9902c;animation:cel 1.6s ease-in-out infinite alternate;letter-spacing:6px}@keyframes cel{from{opacity:.4;transform:scale(.92)}to{opacity:1;transform:scale(1.08)}}.calday.sel{background:#efe0c4}.calday.today{border-color:var(--rose);border-width:2px}';document.head.appendChild(st);
 })();
