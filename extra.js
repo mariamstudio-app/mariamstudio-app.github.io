@@ -128,7 +128,7 @@ const _more5=more;window.more=more=function(){let h=_more5();const re=/<button c
 const _more6=more;window.more=more=function(){const h=_more6();const gi=h.indexOf('<div class="grid">');if(gi<0)return h;const e=h.indexOf('</div>',gi);const inner=h.slice(gi+18,e);const tiles=inner.match(/<button class="tile"[\s\S]*?<\/button>/g)||[];if(tiles.join('')!==inner)return h;const ord=['schedTile','houseTile','wtabTile','calTile','monthTile','adhkarTile','journal','friday','linkTile','manage','backup'];const rank=t=>{const m=t.match(/id="([^"]+)"/);const i=m?ord.indexOf(m[1]):-1;return i<0?99:i};const sorted=tiles.map((t,i)=>[t,i]).sort((a,b)=>rank(a[0])-rank(b[0])||a[1]-b[1]).map(x=>x[0]);const last=sorted.length%2?sorted.pop().replace('<button class="tile"','<button class="tile" style="grid-column:1/-1"'):'';return h.slice(0,gi+18)+sorted.join('')+last+h.slice(e)};
 
 /* ---- version + safe update: shows the running version, checks for a newer one, reloads WITHOUT touching saved data ---- */
-const VER='2026-11-27.11';window.APP_VER=VER;
+const VER='2026-11-27.14';window.APP_VER=VER;
 async function appUpdate(){try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update();if(window.caches){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}catch(e){}location.reload()}
 async function verCheck(){try{const t=await (await fetch('extra.js?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const VER='([^']+)'/);if(m&&m[1]!==VER&&!document.getElementById('verBar')){const b=document.createElement('button');b.id='verBar';b.className='soft';b.style.cssText='position:fixed;top:8px;left:8px;right:8px;z-index:40;background:#fff7e6;border:2px solid #b0602e;padding:10px';b.textContent='فيه نسخة أحدث من مريم. اضغطي هنا للتحديث (بياناتك محفوظة)';b.onclick=()=>{if(typeof hasQuick==='function'&&(hasQuick()||busy)){toast('استني الحفظ يخلص');return}appUpdate()};document.body.appendChild(b)}}catch(e){}}
 setTimeout(verCheck,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()});
@@ -225,7 +225,7 @@ function tPomo(){const n=((V().pomo||{})[TDY()]||[]).filter(x=>x.m===25).length;
 const pfmt=()=>{const s=Math.max(0,Math.round((P.end-Date.now())/1000));return A(String(Math.floor(s/60)).padStart(2,'0'))+':'+A(String(s%60).padStart(2,'0'))};
 setInterval(()=>{if(!P)return;const t=document.getElementById('pomoT');if(Date.now()>=P.end){const f=P;P=null;try{navigator.vibrate&&navigator.vibrate(300)}catch(e){}try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=660;o.start();setTimeout(()=>o.stop(),400)}catch(e){}toast(f.m===25?'خلصت جلسة الشغل، خدي راحة ٥ دقايق ':'خلصت الراحة');if(f.m===25)sv((v)=>{const d=TDY();v.pomo=v.pomo||{};(v.pomo[d]=v.pomo[d]||[]).push({m:25,r:f.r||''})});if($('modal').open&&HT==='m')hub('m');return}if(t)t.textContent=pfmt()},500);
 function hub(tab){HT=tab||HT;const m=$('modal');const y=m.open?m.scrollTop:0;if(m.open)m.close();const body={t:tTasks,c:tCourses,p:tProj,g:tGrat,b:tBaq,m:tPomo,w:()=>weekHtml(date)}[HT]();modal('<h2>أقسامي</h2><div class="subnav" style="flex-wrap:wrap">'+TABS.map(([k,n])=>'<button data-v2="hub|'+k+'" class="'+(HT===k?'active':'')+'">'+n+'</button>').join('')+'</div>'+body);m.scrollTop=y}
-async function act(a,x,y){const v=V();const find=(arr,id)=>(arr||[]).find(z=>z.id===id);let ok=true;const rehub=async(r)=>{if(r!==false)hub()};
+async function act(a,x,y){const v=V();const find=(arr,id)=>(arr||[]).find(z=>z.id===id);let ok=true;const rehub=async(r)=>{if(r!==false){if(route==='courses')render();else hub()}};
 switch(a){
 case 'hub':hub(x);return;
 case 'oldtk':quickToggle('day',x);await new Promise(r=>setTimeout(r,1500));if($('modal').open)hub();return;
@@ -263,7 +263,7 @@ const _tried={};const _rn=render;window.render=render=function(){const r=_rn();c
 let ADT=null;const ONLY={93:'morning',94:'morning',95:'morning',97:'evening'};function srcOf(k){const p=k.split('|');const a=ADT&&ADT[p[p.length-1]];if(!a)return{t:0};const o=ONLY[a.r];if(o&&o!==p[0])return{t:0,other:o};return{t:a.t,r:a.r}}fetch('adhkar.json').then(r=>r.json()).then(d=>{ADT={};['morning_evening','sleep'].forEach(sec=>d[sec].forEach(e=>e.variants.forEach(v=>v.items.forEach(it=>{ADT[it.id]={t:it.times||0,r:e.ref}}))))}).catch(()=>{ADT={}}).then(()=>decor());
 function decor(){if(!state||!ADT)return;const d=TDY();const D=V().dc&&V().dc[d]||{};document.querySelectorAll('#modal .adchk').forEach(btn=>{const k=btn.dataset.k;const card=btn.closest('.card');if(!card)return;const sp=srcOf(k);const src=sp.t;const c=D[k]||{c:0,t:src||1};if(src)c.t=src;let bx=card.querySelector('.v2dc');if(!bx){bx=document.createElement('div');bx.className='v2dc';bx.style.cssText='width:100%;display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px';card.style.flexWrap='wrap';const p=card.querySelector('p');if(p)p.style.minWidth='0';card.appendChild(bx)}const full=c.c>=c.t;const cnt='<button data-v2="dc" data-dk="'+E(k)+'" aria-label="عدّاد" style="flex:1;min-height:44px;'+(full?'background:#2e7d4f;color:#fff':'')+'">'+(full?'تم ✓ ':'')+A(c.c)+' / '+A(c.t)+'</button>';bx.innerHTML=src?'<small class="muted" style="width:100%">العدد من المصدر: '+A(src)+' مرة'+(sp.r==='92'?' (أو مرة واحدة عند الكسل)':'')+'</small>'+cnt:'<small class="muted" style="width:100%">'+(sp.other?'الذكر ده في حصن المسلم '+(sp.other==='morning'?'للصباح':'للمساء')+' بس. عدّاد اختياري منك، مش عدد من المصدر:':'عدّاد اختياري منك، مش عدد مقرّر من المصدر:')+'</small>'+[1,3,33,100].map(t=>'<button class="'+(c.t===t?'soft':'line')+'" data-v2="dct" data-dk="'+E(k)+'" data-dt="'+t+'" style="min-height:40px;padding:2px 12px">'+A(t)+'</button>').join('')+cnt;if(full)card.style.setProperty('background','#e3f4e5','important');else card.style.removeProperty('background');if(full){btn.textContent='✓';btn.setAttribute('aria-pressed','true')}})}
 new MutationObserver(()=>{if(document.querySelector('#modal .adchk:not(.v2d)')){document.querySelectorAll('#modal .adchk').forEach(b=>b.classList.add('v2d'));decor()}}).observe(document.getElementById('modal'),{childList:true,subtree:true});
-window.__hub=t=>hub(t);
+window.__hub=t=>hub(t);window.__tCourses=tCourses;
 })();
 
 /* ---- 2026-11-27.6: صحتي وعنايتي: وزني ومقاساتي، رياضة ١٠ دقايق، يوجا ١٠ دقايق، أدويتي. Stored in state.v2.hl. No targets, no advice, no reminders. ---- */
@@ -418,5 +418,58 @@ document.addEventListener('change',async e=>{if(!e.target||e.target.id!=='planFi
  const HWI=(o.housework&&typeof o.housework==='object')?o.housework:{};await sv(v=>{v.plans=v.plans||[];L.forEach(p=>{const i=v.plans.findIndex(z=>z.id===p.id);if(i>=0)v.plans[i]=p;else v.plans.push(p)})});if(Object.keys(HWI).length)await save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};const w=n.v2.hl.hw=n.v2.hl.hw||{};w.d=w.d||{};Object.keys(HWI).forEach(k=>{if(!/^[0-6]$/.test(k)||!Array.isArray(HWI[k]))return;const Ls=w.d[k]=w.d[k]||[];HWI[k].slice(0,10).forEach(t=>{if(typeof t==='string'&&t.trim()&&t.length<=60&&!Ls.some(x=>x.id==='ws'+k||x.n===t.trim()))Ls.push({id:'ws'+k+(Ls.some(x=>x.id==='ws'+k)?'x':''),n:t.trim()})})});w.seeded=1});toast('اتضافت الخطة')});
 document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-pl]');if(!b||!state)return;e.preventDefault();const [a,x,y]=b.dataset.pl.split('|');
  if(a==='imp'){const i=document.getElementById('planFile');if(i)i.click();return}
- if(a==='t'){const k=+y;await sv(v=>{v.pt=v.pt||{};const d=v.pt[date]=v.pt[date]||{};const c=d[x]||0;d[x]=c>=k?k-1:k});const m=document.getElementById('modal');if(m&&m.open&&window.__hub&&/أقسامي/.test(m.innerText))window.__hub()}});
+ if(a==='t'){const k=+y;await sv(v=>{v.pt=v.pt||{};const d=v.pt[date]=v.pt[date]||{};const c=d[x]||0;d[x]=c>=k?k-1:k});const m=document.getElementById('modal');if(route==='courses')render();else if(m&&m.open&&window.__hub&&/أقسامي/.test(m.innerText))window.__hub()}});
+})();
+
+/* ---- 2026-11-27.12: standalone كورساتي tab (route 'courses') + UI declutter. UI only: no data is deleted or moved. ---- */
+(function(){
+const _v=view;window.view=view=function(){return route==='courses'?('<div class="card" style="margin:0 0 10px"><p class="muted" style="margin:0">كورساتك وخطتك الشهرية في مكان واحد. العلامات هنا هي نفسها اللي في مهامي اليوم.</p></div>'+window.__tCourses()):_v()};
+const _r2=render;window.render=render=function(){_r2();try{
+ const n=document.getElementById('nav');
+ if(n&&!n.querySelector('[data-go=courses]')){const b=document.createElement('button');b.setAttribute('data-go','courses');b.className=route==='courses'?'active':'';b.innerHTML=icon('sk_edu')+'كورساتي';const w=n.querySelector('[data-go=worship]');if(w)n.insertBefore(b,w);else n.appendChild(b)}
+ const a=document.getElementById('app');if(!a)return;
+ if(route==='courses'){const h=a.querySelector('h1');if(h)h.textContent='كورساتي'}
+ const cards=[...a.querySelectorAll('.card')];
+ const hd=c=>((c.querySelector('h3,strong')||{}).innerText||'').trim();
+ if(route==='home'){cards.forEach(c=>{const t=hd(c);if(t==='مهام اليوم'&&!c.querySelector('.task'))c.remove();else if(t==='أقسامي'){c.querySelectorAll('button').forEach(b=>{if(['مهام اليوم','كورساتي','أعمالي'].includes(b.innerText.trim()))b.remove()})}})}
+ if(route==='today'){cards.forEach(c=>{if(hd(c)==='مهام اليوم (الجديدة)'&&!c.querySelector('.task'))c.remove()})}
+ if(route==='more'){const h=document.getElementById('houseTile');if(h)h.remove()}
+ if(route==='section'&&sub==='self'){cards.forEach(c=>{if(hd(c)==='عناية أسبوعية على مزاجك'){const t=c.querySelector('textarea');if(t&&!t.value.trim())c.remove()}})}
+}catch(e){}};
+})();
+
+/* ---- 2026-11-27.13: water reminder inside صحتي وعنايتي. Works ONLY while the app is open on screen (no push, no background). Data: state.v2.hl.wt ---- */
+(function(){
+const A=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const W=()=>((((state||{}).v2||{}).hl||{}).wt)||{};
+const svw=fn=>save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};n.v2.hl.wt=n.v2.hl.wt||{};fn(n.v2.hl.wt)});
+let last=0;
+const cups=()=>(W().c||{})[date]||0;
+function card(){const w=W();return '<div class="card" style="margin:0 0 12px"><h3 style="margin:0 0 6px">شرب الماء</h3><div class="row between"><span>كوبايات النهارده: <strong id="wtN">'+A(cups())+'</strong></span><span><button class="soft" data-wt="m" style="min-height:34px;padding:2px 12px" aria-label="أنقص كوباية">−</button> <button class="soft" data-wt="p" style="min-height:34px;padding:2px 12px" aria-label="أزود كوباية">＋</button></span></div><button class="'+(w.on?'':'line')+'" data-wt="t" style="margin-top:10px">'+(w.on?'التذكير شغّال كل ربع ساعة، اضغطي لإيقافه':'شغّلي تذكير كل ربع ساعة')+'</button><small class="muted" style="display:block;margin-top:8px">التذكير بيظهر جوه التطبيق بس وهو مفتوح قدامك. لو قفلتيه أو قفلتي الشاشة، الآيفون بيوقفه ومش هيفكّرك لحد ما تفتحيه تاني.</small></div>'}
+const _s=section;window.section=section=function(){const h=_s();return sub==='self'?card()+h:h};
+function banner(){if(document.getElementById('wtBan'))return;const d=document.createElement('div');d.id='wtBan';d.setAttribute('role','alert');d.style.cssText='position:fixed;left:12px;right:12px;bottom:96px;z-index:50;background:#fffaf0;border:2px solid #8b1a2b;border-radius:16px;padding:12px;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 6px 18px #0004';d.innerHTML='<strong>وقت كوباية ماية</strong><span><button data-wt="d" style="min-height:40px">شربت</button> <button class="line" data-wt="x" style="min-height:40px">بعدين</button></span>';document.body.appendChild(d);try{const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.frequency.value=660;g.gain.value=.05;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},250)}catch(e){}}
+document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-wt]');if(!b||!state)return;e.preventDefault();const a=b.dataset.wt;const ban=document.getElementById('wtBan');
+ if(a==='x'){if(ban)ban.remove();last=Date.now();return}
+ if(a==='t'){const on=!W().on;await svw(w=>{w.on=on?1:0});last=Date.now();return}
+ if(a==='p'||a==='d'){await svw(w=>{w.c=w.c||{};w.c[date]=(w.c[date]||0)+1});if(ban)ban.remove();last=Date.now();return}
+ if(a==='m'){await svw(w=>{w.c=w.c||{};w.c[date]=Math.max(0,(w.c[date]||0)-1)})}});
+const _rw=render;window.render=render=function(){_rw();if(!last)last=Date.now()};
+setInterval(()=>{try{if(!state||!W().on||document.hidden)return;if(!last)last=Date.now();if(Date.now()-last>=15*60*1000){last=Date.now();banner()}}catch(e){}},20000);
+window.__wtTest=()=>{last=Date.now()-16*60*1000};
+})();
+
+/* ---- 2026-11-27.14: empty editable weekday table «عناية بنفسي» inside صحتي وعنايتي. No invented items: she writes them (or sends her schedule). Data: state.v2.hl.sc ---- */
+(function(){
+const E=s=>esc(s==null?'':String(s));
+const DN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],ORD=[6,0,1,2,3,4,5];
+const S=()=>((((state||{}).v2||{}).hl||{}).sc)||{};
+const svs=fn=>save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};n.v2.hl.sc=n.v2.hl.sc||{};fn(n.v2.hl.sc)});
+const uid=()=>'sc'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+function card(){const sc=S(),d=sc.d||{},today=new Date(date+'T12:00:00+03:00').getDay(),T=(sc.c||{})[date]||{};
+ return '<div class="card" style="margin:0 0 12px"><h3>عناية بنفسي</h3><p class="muted">اكتبي لكل يوم اللي عايزاه. الجدول فاضي لحد ما تضيفي بنفسك.</p>'+ORD.map(i=>{const L=d[i]||[],op=i===today;return '<details'+(op?' open':'')+' style="margin:6px 0"><summary><strong>'+DN[i]+(op?' (النهارده)':'')+'</strong> <small class="muted">'+(L.length?'':'فاضي')+'</small></summary>'+L.map(x=>'<div class="task'+(op&&T[x.id]?' done':'')+'">'+(op?'<button class="tick'+(T[x.id]?' done':'')+'" data-sc="t|'+x.id+'" aria-label="'+E(x.n)+'">'+(T[x.id]?icon('check'):'')+'</button>':'')+'<span class="grow taskname">'+E(x.n)+'</span><button class="line" data-sc="x|'+i+'|'+x.id+'" style="min-height:32px;padding:2px 8px">×</button></div>').join('')+'<div class="row" style="margin-top:6px"><input class="grow" id="scI'+i+'" maxlength="80" placeholder="عناية"><button data-sc="a|'+i+'">＋</button></div></details>'}).join('')+'</div>'}
+const _s=section;window.section=section=function(){const h=_s();return sub==='self'?h.replace(/(<div class="card" style="margin:0 0 12px"><h3 style="margin:0 0 6px">شرب الماء)/,card()+'$1'):h};
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-sc]');if(!b||!state)return;e.preventDefault();const [a,x,y]=b.dataset.sc.split('|');
+ if(a==='a'){const v=document.getElementById('scI'+x).value.trim();if(v)svs(h=>{h.d=h.d||{};(h.d[x]=h.d[x]||[]).push({id:uid(),n:v})})}
+ if(a==='x'){if(confirm('نمسح البند؟'))svs(h=>{h.d[x]=(h.d[x]||[]).filter(z=>z.id!==y)})}
+ if(a==='t')svs(h=>{h.c=h.c||{};const c=h.c[date]=h.c[date]||{};c[x]=c[x]?0:1})});
 })();
