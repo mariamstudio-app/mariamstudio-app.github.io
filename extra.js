@@ -27,8 +27,8 @@ function monthHist(){const m={};Object.keys(state.days||{}).forEach(k=>{const d=
 function monthDlg(){if(cy==null)initMonth();const pre=cy+'-'+pad(cm+1)+'-';let ticks=0,act=0,notes=0,pages=0;Object.keys(state.days||{}).forEach(k=>{if(!k.startsWith(pre))return;const d=state.days[k];const c=Object.values(d.done||{}).filter(Boolean).length;ticks+=c;if(c)act++;if((d.note||'').trim())notes++;pages+=+d.pages||0});
  const works=(state.works||[]).filter(w=>(w.created||'').startsWith(pre.slice(0,7))).length;const ap=(state.appts||[]).filter(a=>a.date.startsWith(pre)).length;const q=(state.books||[]).reduce((s,b)=>s+(b.quotes||[]).length,0);
  const stat=(n,l)=>'<div class="card" style="text-align:center;margin:0;padding:14px"><strong style="font-size:26px;color:var(--rose)">'+ar(n)+'</strong><small style="display:block">'+l+'</small></div>';
- modal('<h2>إنجازات الشهر</h2><div class="row between"><button class="soft" id="mPrev">›</button><strong>'+MN[cm]+' '+ar(cy)+'</strong><button class="soft" id="mNext">‹</button></div>'+(act?'<div class="notice" style="text-align:center;margin-top:12px"><div class="celeb" aria-hidden="true">✦ ✧ ✦ ✧ ✦</div><h3 style="margin:6px 0">أشطر كتكوت</h3>'+NOTES[cm%NOTES.length]+'</div>':'<p class="muted" style="margin-top:12px">لسه مفيش علامات في الشهر ده. أول علامة هتظهر هنا.</p>')+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">'+stat(ticks,'علامة منجزة')+stat(act,'يوم فيه إنجاز')+stat(notes,'يوم فيه سطر')+stat(pages,'صفحة قراءة')+stat(works,'عمل اتضاف')+stat(ap,'موعد')+'</div><p class="muted">'+ar(q)+' اقتباس محفوظ في كتبي.</p>'+monthHist());
- document.querySelectorAll('[data-mh]').forEach(b=>b.onclick=()=>{const p=b.dataset.mh.split('-');cy=+p[0];cm=+p[1]-1;monthDlg()});
+ modal('<h2>إنجازات الشهر</h2><div class="row between"><button class="soft" id="mPrev">›</button><strong>'+MN[cm]+' '+ar(cy)+'</strong><button class="soft" id="mNext">‹</button></div>'+(act?'<div class="notice" style="text-align:center;margin-top:12px"><div class="celeb" aria-hidden="true">✦ ✧ ✦ ✧ ✦</div><h3 style="margin:6px 0">أشطر كتكوت</h3>'+NOTES[cm%NOTES.length]+'<div style="margin-top:10px"><button class="soft" id="applause">اسمعي التصفيق</button></div></div>':'<p class="muted" style="margin-top:12px">لسه مفيش علامات في الشهر ده. أول علامة هتظهر هنا.</p>')+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">'+stat(ticks,'علامة منجزة')+stat(act,'يوم فيه إنجاز')+stat(notes,'يوم فيه سطر')+stat(pages,'صفحة قراءة')+stat(works,'عمل اتضاف')+stat(ap,'موعد')+'</div><p class="muted">'+ar(q)+' اقتباس محفوظ في كتبي.</p>'+monthHist());
+ document.querySelectorAll('[data-mh]').forEach(b=>b.onclick=()=>{const p=b.dataset.mh.split('-');cy=+p[0];cm=+p[1]-1;monthDlg()});if($('applause'))$('applause').onclick=()=>{try{window.__applause()}catch(e){}};
  $('mPrev').onclick=()=>{cm--;if(cm<0){cm=11;cy--}monthDlg()};$('mNext').onclick=()=>{cm++;if(cm>11){cm=0;cy++}monthDlg()}}
 let AD=null;const adToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 async function adhkarDlg(tab='morning',keep){if(!keep)modal('<h2>أذكاري</h2><p class="muted" id="adLoad">جارٍ التحميل…</p>');if(!AD){try{AD=await (await fetch('adhkar.json')).json()}catch(e){if($('adLoad'))$('adLoad').textContent='محتاج إنترنت لأول فتح بس.';return}}
@@ -128,12 +128,13 @@ const _more5=more;window.more=more=function(){let h=_more5();const re=/<button c
 const _more6=more;window.more=more=function(){const h=_more6();const gi=h.indexOf('<div class="grid">');if(gi<0)return h;const e=h.indexOf('</div>',gi);const inner=h.slice(gi+18,e);const tiles=inner.match(/<button class="tile"[\s\S]*?<\/button>/g)||[];if(tiles.join('')!==inner)return h;const ord=['schedTile','houseTile','wtabTile','calTile','monthTile','adhkarTile','journal','friday','linkTile','manage','backup'];const rank=t=>{const m=t.match(/id="([^"]+)"/);const i=m?ord.indexOf(m[1]):-1;return i<0?99:i};const sorted=tiles.map((t,i)=>[t,i]).sort((a,b)=>rank(a[0])-rank(b[0])||a[1]-b[1]).map(x=>x[0]);const last=sorted.length%2?sorted.pop().replace('<button class="tile"','<button class="tile" style="grid-column:1/-1"'):'';return h.slice(0,gi+18)+sorted.join('')+last+h.slice(e)};
 
 /* ---- version + safe update: shows the running version, checks for a newer one, reloads WITHOUT touching saved data ---- */
-const VER='2026-11-27.5';window.APP_VER=VER;
+const VER='2026-11-27.6';window.APP_VER=VER;
 async function appUpdate(){try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update();if(window.caches){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}catch(e){}location.reload()}
 async function verCheck(){try{const t=await (await fetch('extra.js?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const VER='([^']+)'/);if(m&&m[1]!==VER&&!document.getElementById('verBar')){const b=document.createElement('button');b.id='verBar';b.className='soft';b.style.cssText='position:fixed;top:8px;left:8px;right:8px;z-index:40;background:#fff7e6;border:2px solid #b0602e;padding:10px';b.textContent='فيه نسخة أحدث من مريم. اضغطي هنا للتحديث (بياناتك محفوظة)';b.onclick=()=>{if(typeof hasQuick==='function'&&(hasQuick()||busy)){toast('استني الحفظ يخلص');return}appUpdate()};document.body.appendChild(b)}}catch(e){}}
 setTimeout(verCheck,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()});
 const _more7=more;window.more=more=function(){const h=_more7();return h+'<p class="muted" style="text-align:center;margin:14px 0">إصدار التطبيق: '+VER+'</p>'};
 const st=document.createElement('style');st.textContent='.celeb{font-size:22px;color:#c9902c;animation:cel 1.6s ease-in-out infinite alternate;letter-spacing:6px}@keyframes cel{from{opacity:.4;transform:scale(.92)}to{opacity:1;transform:scale(1.08)}}.calday.sel{background:#efe0c4}.calday.today{border-color:var(--rose);border-width:2px}';document.head.appendChild(st);
+window.__monthDlg=(y,m)=>{cy=y;cm=m;monthDlg()};
 })();
 
 /* ---- v4: worship table inside «علاقتي بربنا», home thought ---- */
@@ -262,4 +263,120 @@ const _tried={};const _rn=render;window.render=render=function(){const r=_rn();c
 let ADT=null;const ONLY={93:'morning',94:'morning',95:'morning',97:'evening'};function srcOf(k){const p=k.split('|');const a=ADT&&ADT[p[p.length-1]];if(!a)return{t:0};const o=ONLY[a.r];if(o&&o!==p[0])return{t:0,other:o};return{t:a.t,r:a.r}}fetch('adhkar.json').then(r=>r.json()).then(d=>{ADT={};['morning_evening','sleep'].forEach(sec=>d[sec].forEach(e=>e.variants.forEach(v=>v.items.forEach(it=>{ADT[it.id]={t:it.times||0,r:e.ref}}))))}).catch(()=>{ADT={}}).then(()=>decor());
 function decor(){if(!state||!ADT)return;const d=TDY();const D=V().dc&&V().dc[d]||{};document.querySelectorAll('#modal .adchk').forEach(btn=>{const k=btn.dataset.k;const card=btn.closest('.card');if(!card)return;const sp=srcOf(k);const src=sp.t;const c=D[k]||{c:0,t:src||1};if(src)c.t=src;let bx=card.querySelector('.v2dc');if(!bx){bx=document.createElement('div');bx.className='v2dc';bx.style.cssText='width:100%;display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px';card.style.flexWrap='wrap';const p=card.querySelector('p');if(p)p.style.minWidth='0';card.appendChild(bx)}const full=c.c>=c.t;const cnt='<button data-v2="dc" data-dk="'+E(k)+'" aria-label="عدّاد" style="flex:1;min-height:44px;'+(full?'background:#2e7d4f;color:#fff':'')+'">'+(full?'تم ✓ ':'')+A(c.c)+' / '+A(c.t)+'</button>';bx.innerHTML=src?'<small class="muted" style="width:100%">العدد من المصدر: '+A(src)+' مرة'+(sp.r==='92'?' (أو مرة واحدة عند الكسل)':'')+'</small>'+cnt:'<small class="muted" style="width:100%">'+(sp.other?'الذكر ده في حصن المسلم '+(sp.other==='morning'?'للصباح':'للمساء')+' بس. عدّاد اختياري منك، مش عدد من المصدر:':'عدّاد اختياري منك، مش عدد مقرّر من المصدر:')+'</small>'+[1,3,33,100].map(t=>'<button class="'+(c.t===t?'soft':'line')+'" data-v2="dct" data-dk="'+E(k)+'" data-dt="'+t+'" style="min-height:40px;padding:2px 12px">'+A(t)+'</button>').join('')+cnt;if(full)card.style.setProperty('background','#e3f4e5','important');else card.style.removeProperty('background');if(full){btn.textContent='✓';btn.setAttribute('aria-pressed','true')}})}
 new MutationObserver(()=>{if(document.querySelector('#modal .adchk:not(.v2d)')){document.querySelectorAll('#modal .adchk').forEach(b=>b.classList.add('v2d'));decor()}}).observe(document.getElementById('modal'),{childList:true,subtree:true});
+})();
+
+/* ---- 2026-11-27.6: صحتي وعنايتي: وزني ومقاساتي، رياضة ١٠ دقايق، يوجا ١٠ دقايق، أدويتي. Stored in state.v2.hl. No targets, no advice, no reminders. ---- */
+(function(){
+const A=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const E=s=>esc(s==null?'':String(s));
+const H=()=>((state.v2||{}).hl)||{};
+const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const sv=fn=>save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};fn(n.v2.hl)});
+const OPT={ex:[
+ {u:'https://www.youtube.com/watch?v=FGFfqCjtmS8',t:'10 MIN FULL BODY WORKOUT, Beginner Friendly, no equipment',c:'Pamela Reif',l:'١٠:٣٠ (اتحقق من المدة)'},
+ {u:'https://www.youtube.com/watch?v=-woTZrfoF4M',t:'تمرين ١٠ دقائق لنحت وشد الجسم بالمنزل بدون ادوات',c:'بالعربي',l:'المدة مش متحققة'}],
+ yg:[
+ {u:'https://www.youtube.com/watch?v=g6DdOHaAmSQ',t:'Wake Up, 10 Minute Morning Yoga',c:'Yoga With Adriene',l:'١٠:٣٤ (اتحقق من المدة)'},
+ {u:'https://www.youtube.com/watch?v=3X0hEHop8ec',t:'10 min Yoga for Beginners, Gentle & Simple',c:'Yoga with Kassandra',l:'المدة مش متحققة'}]};
+const okUrl=u=>/^https:\/\/((www|m)\.)?(youtube\.com|youtu\.be)\//.test(u);
+const cur=k=>{const v=(H().vid||{})[k];if(v&&typeof v==='object'&&v.custom)return{u:v.custom,t:'رابط اخترتيه بنفسك',c:'',l:''};return OPT[k][Math.min(+v||0,OPT[k].length-1)]};
+const bar=p=>'<div class="progress" style="margin:8px 0"><i style="width:'+p+'%"></i></div>';
+const days7=()=>{const o=[];const b=new Date(date+'T12:00:00+03:00');for(let i=6;i>=0;i--){const x=new Date(b);x.setDate(x.getDate()-i);o.push(x.toLocaleDateString('en-CA',{timeZone:'Asia/Riyadh'}))}return o};
+function vidCard(k,title){const h=H();const v=cur(k);const done=((h.hx||{})[date]||{})[k];const n=days7().filter(d=>((h.hx||{})[d]||{})[k]).length;
+ return '<div class="card" style="margin:0 0 12px"><div class="row between"><h3 style="margin:0">'+title+'</h3><span class="muted">'+A(n)+' من ٧ أيام</span></div><div style="display:flex;align-items:center;gap:10px;padding:8px 0"><button class="tick '+(done?'done':'')+'" data-hl="hx|'+k+'" aria-label="'+title+'" style="flex:0 0 40px">'+(done?icon('check'):'')+'</button><span>خلصتها النهارده</span></div><div class="notice" style="margin:6px 0"><div>'+E(v.t)+'</div><small class="muted">'+E(v.c)+(v.l?' • '+E(v.l):'')+'</small></div><div class="row" style="gap:8px;flex-wrap:wrap"><a class="soft" href="'+E(v.u)+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 14px;border-radius:12px;text-decoration:none">افتحي الفيديو على يوتيوب</a><button class="line" data-hl="vn|'+k+'" style="min-height:40px">بديل تاني</button><button class="line" data-hl="vc|'+k+'" style="min-height:40px">رابط من عندي</button></div></div>'}
+const MK=[['waist','الوسط'],['hips','الأرداف'],['chest','الصدر'],['arm','الذراع'],['thigh','الفخذ']];
+function chart(L){if(L.length<2)return '';const v=L.map(x=>x.kg);const lo=Math.min(...v),hi=Math.max(...v),r=(hi-lo)||1;const W=300,Hh=70;const pts=v.map((y,i)=>(10+i*(W-20)/(v.length-1)).toFixed(1)+','+(Hh-10-(y-lo)/r*(Hh-20)).toFixed(1)).join(' ');return '<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="تغيّر الوزن" style="width:100%;height:70px;margin:6px 0"><polyline fill="none" stroke="#7a1f2b" stroke-width="2.5" points="'+pts+'"/></svg>'}
+function wCard(){const L=(H().w||[]).slice().sort((a,b)=>a.d<b.d?-1:1);const last=L[L.length-1];const f=L[0];let sum='';if(last&&L.length>1){const dl=+(last.kg-L[L.length-2].kg).toFixed(1),df=+(last.kg-f.kg).toFixed(1);const t=x=>x===0?'زي ما هو':(x>0?'+':'-')+A(Math.abs(x).toString().replace('.','٫'))+' كجم';sum='<p class="muted" style="margin:6px 0">آخر تغيّر عن القياس اللي قبله: <strong>'+t(dl)+'</strong>، ومن أول قياس: <strong>'+t(df)+'</strong>. مجرد أرقام، من غير أهداف أو أحكام.</p>'}
+ return '<div class="card" style="margin:0 0 12px"><h3 style="margin:0 0 6px">وزني ومقاساتي</h3><div class="fieldgrid"><label>التاريخ<input id="hlD" type="date" value="'+date+'"></label><label>الوزن (كجم)<input id="hlK" type="number" step="0.1" min="20" max="300" inputmode="decimal"></label>'+MK.map(([k,n])=>'<label>'+n+' (سم)<input id="hlM-'+k+'" type="number" step="0.5" min="10" max="300" inputmode="decimal"></label>').join('')+'</div><button data-hl="wadd" style="margin-top:8px">حفظ القياس</button>'+chart(L.slice(-30))+sum+(L.length?L.slice().reverse().slice(0,8).map(x=>'<div class="notice" style="margin:8px 0"><div class="row between"><strong>'+A(x.d)+'</strong><button class="line" data-hl="wdel|'+x.id+'" style="min-height:32px;padding:2px 10px">×</button></div><div>الوزن: '+A(String(x.kg).replace('.','٫'))+' كجم</div>'+(Object.keys(x.m||{}).length?'<small class="muted">'+MK.filter(([k])=>x.m[k]).map(([k,n])=>n+' '+A(String(x.m[k]).replace('.','٫'))).join(' • ')+'</small>':'')+'</div>').join(''):'<p class="muted">لسه مفيش قياسات. أول قياس هيظهر هنا.</p>')+'</div>'}
+const PT=['صبح','بعد الظهر','بليل','مرن'];
+function mCard(){const h=H();const M=h.meds||[];const T=(h.mt||{})[date]||{};const n=M.length;const dn=M.filter(m=>T[m.id]).length;
+ return '<div class="card" style="margin:0 0 12px"><h3 style="margin:0 0 6px">أدويتي</h3><p class="muted" style="margin:0 0 8px">أنتِ اللي بتكتبي الاسم والجرعة زي ما الدكتور كاتبها. التطبيق بس بيفكّرك بالعلامة اليومية، مفيش تنبيهات ولا نصايح طبية.</p>'+(n?bar(Math.round(dn/n*100))+'<small class="muted">'+A(dn)+' من '+A(n)+' النهارده</small>':'')+PT.map(p=>{const L=M.filter(m=>m.part===p);return L.length?'<strong style="display:block;margin-top:8px;color:#7a1f2b">'+p+'</strong>'+L.map(m=>'<div class="task'+(T[m.id]?' done':'')+'"><button class="tick'+(T[m.id]?' done':'')+'" data-hl="mt|'+m.id+'" aria-label="'+E(m.n)+'">'+(T[m.id]?icon('check'):'')+'</button><span class="grow taskname">'+E(m.n)+(m.dose?' <small class="muted">• '+E(m.dose)+'</small>':'')+'</span><button class="line" data-hl="med|'+m.id+'" style="min-height:34px;padding:2px 8px">✎</button><button class="line" data-hl="mdl|'+m.id+'" style="min-height:34px;padding:2px 8px">×</button></div>').join(''):''}).join('')+'<div class="row" style="margin-top:10px"><input class="grow" id="hlMn" maxlength="80" placeholder="اسم الدواء"><input id="hlMd" maxlength="60" placeholder="الجرعة" style="width:110px"></div><div class="row" style="margin-top:8px"><select id="hlMp" class="grow">'+PT.map(p=>'<option>'+p+'</option>').join('')+'</select><button data-hl="madd">إضافة</button></div></div>'}
+const _sec=section;window.section=section=function(){const h=_sec();if(sub!=='self')return h;return '<div class="notice" style="margin:0 0 12px">أقسام جديدة: وزني ومقاساتي، رياضة ١٠ دقايق، يوجا ١٠ دقايق، أدويتي. بتتحفظ على الجهاز بس، وفي النسخة الاحتياطية.</div>'+wCard()+vidCard('ex','رياضة ١٠ دقايق كل يوم')+vidCard('yg','يوجا ١٠ دقايق')+mCard()+h};
+async function act(a,x){const h=H();
+ switch(a){
+ case 'hx':return void await sv(h=>{h.hx=h.hx||{};const d=h.hx[date]=h.hx[date]||{};d[x]=d[x]?0:1});
+ case 'vn':return void await sv(h=>{h.vid=h.vid||{};const c=cur(x);const i=OPT[x].findIndex(o=>o.u===c.u);h.vid[x]=(i+1)%OPT[x].length});
+ case 'vc':{const u=prompt('الصقي رابط يوتيوب (يبدأ بـ https://)','');if(u==null||!u.trim())return;if(!okUrl(u.trim())){toast('الرابط لازم يكون من يوتيوب ويبدأ بـ https://');return}return void await sv(h=>{h.vid=h.vid||{};h.vid[x]={custom:u.trim()}})}
+ case 'wadd':{const kg=parseFloat($('hlK').value);const d=$('hlD').value||date;if(!(kg>=20&&kg<=300)){toast('اكتبي الوزن بالكيلو');return}const m={};MK.forEach(([k])=>{const v=parseFloat($('hlM-'+k).value);if(v>=10&&v<=300)m[k]=v});return void await sv(h=>{(h.w=h.w||[]).push({id:uid(),d,kg:Math.round(kg*10)/10,m})})}
+ case 'wdel':if(!confirm('نمسح القياس ده؟'))return;return void await sv(h=>{h.w=(h.w||[]).filter(z=>z.id!==x)});
+ case 'madd':{const n=$('hlMn').value.trim();if(!n)return;const dose=$('hlMd').value.trim(),part=$('hlMp').value;return void await sv(h=>{(h.meds=h.meds||[]).push({id:uid(),n,dose,part})})}
+ case 'mt':return void await sv(h=>{h.mt=h.mt||{};const d=h.mt[date]=h.mt[date]||{};d[x]=d[x]?0:1});
+ case 'med':{const m=(h.meds||[]).find(z=>z.id===x);if(!m)return;const n=prompt('اسم الدواء',m.n);if(n==null||!n.trim())return;const dose=prompt('الجرعة',m.dose||'');if(dose==null)return;return void await sv(h=>{const o=(h.meds||[]).find(z=>z.id===x);if(o){o.n=n.trim();o.dose=dose.trim()}})}
+ case 'mdl':if(!confirm('نمسح الدواء من القائمة؟ علاماته القديمة هتفضل محفوظة.'))return;return void await sv(h=>{h.meds=(h.meds||[]).filter(z=>z.id!==x)});
+ }}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-hl]');if(!b||!state)return;const [a,x]=b.dataset.hl.split('|');e.preventDefault();act(a,x)});
+})();
+
+/* ---- 2026-11-27.6: four tabs, الضبط, hero on top with rotating verse/thought, no hero buttons ---- */
+(function(){
+const NV=[{u:'وَقُل رَّبِّ زِدْنِي عِلْمًا',s:'سورة طه، آية ١١٤'},{u:'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ',s:'سورة البقرة، آية ١٥٢'},{u:'وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥٓ',s:'سورة الطلاق، آية ٣'},{u:'لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا',s:'سورة البقرة، آية ٢٨٦'}];
+const P2=POOL.concat(NV);
+let last=-1;
+const _h=home;window.home=home=function(){
+ const html=_h();const t=document.createElement('template');t.innerHTML=html;
+ const hero=t.content.querySelector('.hero');const th=t.content.querySelector('#homeThought');
+ let p=null;const tx=th?th.textContent:'';
+ if(th){th.remove()}
+ if(hero){
+  // keep the same pick as the thought card chosen for this open
+  p=P2.find(o=>tx.indexOf(o.t.slice(0,12))>=0)||P2[Math.floor(Math.random()*P2.length)];
+  const h1=hero.querySelector('h1'),sm=hero.querySelector('small'),pp=hero.querySelector('p'),ac=hero.querySelector('.actions');
+  if(h1){h1.textContent=p.t;if(!p.s)h1.style.fontSize='24px'}
+  if(sm)sm.textContent=p.s||'';
+  if(pp)pp.remove();
+  if(ac)ac.remove();
+  hero.remove();
+ }
+ const rest=t.innerHTML;
+ const first=document.createElement('div');first.appendChild(hero||document.createTextNode(''));
+ // put hero first, then the rest (mood, Friday, tasks, tiles)
+ return first.innerHTML+rest;
+};
+const _r=render;window.render=render=function(){_r();
+ const n=document.getElementById('nav');if(!n)return;
+ const w=n.querySelector('[data-go=works]');if(w)w.remove();
+ n.querySelectorAll('button').forEach(b=>{const l=b.lastChild;if(!l||l.nodeType!==3)return;if(b.dataset.go==='today')l.textContent='مهامي اليوم';if(b.dataset.go==='more')l.textContent='الضبط'});
+ const hh=document.querySelector('#app h1');if(hh&&route==='more')hh.textContent='الضبط';
+ if(hh&&route==='today')hh.textContent='مهامي اليوم';
+};
+const _m=more;window.more=more=function(){const h=_m();return h.replace('<div class="grid">','<div class="grid"><button class="tile" data-go="works"><span class="ico">'+icon('art')+'</span><strong>أعمالي</strong><small>معرض أعمالك</small></button>')};
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#app [data-go]');if(b&&state){go(b.dataset.go)}});
+})();
+
+/* ---- 2026-11-27.6: home without the six-card grid; sections under الضبط; empty editable housework table in بيتي (no invented tasks) ---- */
+(function(){
+const E=s=>esc(s==null?'':String(s));
+const uid=()=>'w'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const H=()=>(((state.v2||{}).hl)||{}).hw||{};
+const sv=fn=>save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};n.v2.hl.hw=n.v2.hl.hw||{};fn(n.v2.hl.hw)});
+const DN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const ORD=[6,0,1,2,3,4,5];
+const _h=home;window.home=home=function(){const t=document.createElement('template');t.innerHTML=_h();t.content.querySelectorAll('.grid').forEach(g=>{if(g.querySelector('[data-section],#bookTile'))g.remove()});return t.innerHTML};
+const _m=more;window.more=more=function(){const h=_m();const L=state.sections.map(s=>'<button class="tile" data-section="'+E(s.id)+'"><span class="ico">'+icon(s.icon)+'</span><strong>'+E(s.name)+'</strong></button>').join('')+'<button class="tile" id="bookTile"><span class="ico">'+icon('sk_books')+'</span><strong>كتبي وقراءتي</strong></button>';return h.replace('<div class="grid">','<h3 style="margin:6px 0 10px">أقسامي</h3><div class="grid">'+L+'</div><h3 style="margin:18px 0 10px">التعديل والنسخ</h3><div class="grid">')};
+function hwCard(){const hw=H();const d=hw.d||{};const today=new Date(date+'T12:00:00+03:00').getDay();const T=(hw.c||{})[date]||{};
+ return '<div class="card"><h3>جدول شغل البيت</h3><p class="muted">اكتبي مهام كل يوم بنفسك. الجمعة راحة لو سبتيها فاضية.</p>'+ORD.map(i=>{const L=d[i]||[];const op=i===today;return '<details'+(op?' open':'')+' style="margin:6px 0"><summary><strong>'+DN[i]+(op?' (النهارده)':'')+'</strong> <small class="muted">'+(L.length?'':(i===5?'راحة':'فاضي'))+'</small></summary>'+L.map(x=>'<div class="task'+(op&&T[x.id]?' done':'')+'">'+(op?'<button class="tick'+(T[x.id]?' done':'')+'" data-hw="t|'+x.id+'" aria-label="'+E(x.n)+'">'+(T[x.id]?icon('check'):'')+'</button>':'')+'<span class="grow taskname">'+E(x.n)+'</span><button class="line" data-hw="x|'+i+'|'+x.id+'" style="min-height:32px;padding:2px 8px">×</button></div>').join('')+'<div class="row" style="margin-top:6px"><input class="grow" id="hwI'+i+'" maxlength="80" placeholder="مهمة"><button data-hw="a|'+i+'">＋</button></div></details>'}).join('')+'</div>'}
+const _s=section;window.section=section=function(){const h=_s();return sub==='home'?hwCard()+h:h};
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-hw]');if(!b||!state)return;e.preventDefault();const [a,x,y]=b.dataset.hw.split('|');
+ if(a==='a'){const v=document.getElementById('hwI'+x).value.trim();if(v)sv(h=>{h.d=h.d||{};(h.d[x]=h.d[x]||[]).push({id:uid(),n:v})})}
+ if(a==='x'){if(confirm('نمسح المهمة؟'))sv(h=>{h.d[x]=(h.d[x]||[]).filter(z=>z.id!==y)})}
+ if(a==='t')sv(h=>{h.c=h.c||{};const c=h.c[date]=h.c[date]||{};c[x]=c[x]?0:1})});
+})();
+
+/* ---- 2026-11-27.6: Sakan-style soft icon buttons on الضبط ---- */
+(function(){
+const st=document.createElement('style');
+st.textContent='.sk{display:grid!important;grid-template-columns:1fr 1fr;gap:10px}.sk .tile{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:14px 8px;min-height:88px;border:2px solid rgba(122,31,43,.15)!important;border-radius:18px;box-shadow:none!important;color:#3a1a22}.sk .tile::before,.sk .tile::after{display:none!important}.sk .tile>span:not(.ico){display:none}.sk .tile small{display:none}.sk .tile .ico{background:none!important;border:0!important;box-shadow:none!important;width:34px;height:34px;color:#7a1f2b!important;display:flex;align-items:center;justify-content:center;margin:0}.sk .tile .ico::before,.sk .tile .ico::after{display:none!important}.sk .tile .ico svg{width:30px;height:30px;stroke:#7a1f2b;fill:none;stroke-width:1.8}.sk .tile strong{font-size:15px;color:#3a1a22}.sk .tile:nth-child(4n+1){background:#dfeadc}.sk .tile:nth-child(4n+2){background:#fde1ea}.sk .tile:nth-child(4n+3){background:#e6e3f4}.sk .tile:nth-child(4n+4){background:#fdf0c8}';
+document.head.appendChild(st);
+const _m=more;window.more=more=function(){return _m().replace(/<div class="grid">/g,'<div class="grid sk">')};
+})();
+
+
+/* ---- 2026-11-27.6: month-end «أشطر كتكوت» with applause (synthesized, no audio file). Shown once per month when the app is opened on/after the month's last day. ---- */
+(function(){
+let ac=null;
+window.__applause=function(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();const T=ac.currentTime,len=3.2;const buf=ac.createBuffer(1,ac.sampleRate*len,ac.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++){const t=i/ac.sampleRate;const env=Math.min(1,t/.25)*Math.max(0,1-(t-2.2)/1);d[i]=(Math.random()*2-1)*(Math.random()<.04?1:.12)*env}const src=ac.createBufferSource();src.buffer=buf;const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=2200;f.Q.value=.6;const g=ac.createGain();g.gain.value=.5;src.connect(f);f.connect(g);g.connect(ac.destination);src.start(T);try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}catch(e){}};
+const pad=n=>String(n).padStart(2,'0');
+function due(){const p=date.split('-').map(Number);const last=new Date(Date.UTC(p[0],p[1],0)).getUTCDate();let y=p[0],m=p[1];if(p[2]<last){m--;if(m<1){m=12;y--}}return y+'-'+pad(m)}
+function hasAct(k){return Object.keys(state.days||{}).some(d=>d.startsWith(k+'-')&&Object.values(state.days[d].done||{}).some(Boolean))}
+const _r=render;window.render=render=function(){_r();try{if(route!=='home'||!state)return;const k=due();const c=((state.v2||{}).celeb)||{};if(c.last===k||!hasAct(k))return;const m=document.getElementById('modal');if(m&&m.open)return;const [y,mo]=k.split('-').map(Number);setTimeout(()=>{if(m&&m.open)return;window.__monthDlg(y,mo-1);window.__applause();save(n=>{n.v2=n.v2||{};n.v2.celeb={last:k}})},700)}catch(e){}};
 })();
