@@ -128,7 +128,7 @@ const _more5=more;window.more=more=function(){let h=_more5();const re=/<button c
 const _more6=more;window.more=more=function(){const h=_more6();const gi=h.indexOf('<div class="grid">');if(gi<0)return h;const e=h.indexOf('</div>',gi);const inner=h.slice(gi+18,e);const tiles=inner.match(/<button class="tile"[\s\S]*?<\/button>/g)||[];if(tiles.join('')!==inner)return h;const ord=['schedTile','houseTile','wtabTile','calTile','monthTile','adhkarTile','journal','friday','linkTile','manage','backup'];const rank=t=>{const m=t.match(/id="([^"]+)"/);const i=m?ord.indexOf(m[1]):-1;return i<0?99:i};const sorted=tiles.map((t,i)=>[t,i]).sort((a,b)=>rank(a[0])-rank(b[0])||a[1]-b[1]).map(x=>x[0]);const last=sorted.length%2?sorted.pop().replace('<button class="tile"','<button class="tile" style="grid-column:1/-1"'):'';return h.slice(0,gi+18)+sorted.join('')+last+h.slice(e)};
 
 /* ---- version + safe update: shows the running version, checks for a newer one, reloads WITHOUT touching saved data ---- */
-const VER='2026-11-27.8';window.APP_VER=VER;
+const VER='2026-11-27.9';window.APP_VER=VER;
 async function appUpdate(){try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update();if(window.caches){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}catch(e){}location.reload()}
 async function verCheck(){try{const t=await (await fetch('extra.js?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const VER='([^']+)'/);if(m&&m[1]!==VER&&!document.getElementById('verBar')){const b=document.createElement('button');b.id='verBar';b.className='soft';b.style.cssText='position:fixed;top:8px;left:8px;right:8px;z-index:40;background:#fff7e6;border:2px solid #b0602e;padding:10px';b.textContent='فيه نسخة أحدث من مريم. اضغطي هنا للتحديث (بياناتك محفوظة)';b.onclick=()=>{if(typeof hasQuick==='function'&&(hasQuick()||busy)){toast('استني الحفظ يخلص');return}appUpdate()};document.body.appendChild(b)}}catch(e){}}
 setTimeout(verCheck,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()});
@@ -155,7 +155,7 @@ const STUDY_DAILY=[['sd-alaa','دروس الشيخ علاء'],['sd-read','قرا
 const STUDY_WEEK=[['sw-tafsir','تفسير','٢'],['sw-azhar','تجويد الأزهر','٣'],['sw-fiqh','فقه حنفي','٢']];
 function studyWeekDays(){const b=new Date(studyToday()+'T12:00:00+03:00');const k=(b.getDay()+1)%7;return [...Array(7)].map((_,i)=>{const x=new Date(b);x.setDate(x.getDate()-k+i);return x.toLocaleDateString('en-CA',{timeZone:'Asia/Riyadh'})})}
 function studyDlg(){const d=studyToday(),m=(state.studyDone||{})[d]||{},wk=studyWeekDays();
- const basma=true;
+ const basma=!(((state.v2||{}).plans)||[]).some(p=>/بسمة/.test(p.name));
  const row=(id,n,extra)=>'<div class="card" style="margin:8px 0;padding:12px;display:flex;gap:12px;align-items:center"><button class="stchk" data-k="'+id+'" aria-pressed="'+!!m[id]+'" style="flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;border-radius:12px;font-size:24px;line-height:1">'+(m[id]?'✓':'')+'</button><div style="flex:1"><strong>'+esc(n)+'</strong>'+(extra?'<br><small class="muted">'+extra+'</small>':'')+'</div></div>';
  const cnt=id=>wk.filter(x=>(((state.studyDone||{})[x])||{})[id]).length;
  const h='<h2>خطة التعلّم</h2><p class="muted">من كلامك: وقتك المتاح ١٠ صباحًا لـ٢ ظهرًا، و٦ مساءً لـ٩. العلامات لكل يوم لوحدها وبتفضل محفوظة. أكاديمية البلدة ومعهد مرتقى مش فيها.</p><div class="notice">البنود دي من كلامك ومن رسالتك يوم ٢٣ نوفمبر. جدول الأيام والأوقات بالتفصيل اللي كان في ملف نيبو لسه ما اتنقلش هنا لإن الملف نفسه مش متاح عندي.</div><h3>كل يوم</h3>'+STUDY_DAILY.map(([i,n])=>row(i,n)).join('')+(basma?row('sd-basma','كورس بسمة علام','لمدة ١٠ أيام، من كلامك. تاريخ البداية والمدة اليومية لسه مش محددين.'):'')+'<h3>مرات في الأسبوع</h3><p class="muted">علّمي اليوم اللي عملتيه فيه. الأسبوع من السبت للجمعة.</p>'+STUDY_WEEK.map(([i,n,c])=>row(i,n,'المطلوب '+c+' مرات هذا الأسبوع، اتعمل '+stAr(cnt(i)))).join('');
@@ -382,14 +382,6 @@ function hasAct(k){return Object.keys(state.days||{}).some(d=>d.startsWith(k+'-'
 const _r=render;window.render=render=function(){_r();try{if(route!=='home'||!state)return;const k=due();const c=((state.v2||{}).celeb)||{};if(c.last===k||!hasAct(k))return;const m=document.getElementById('modal');if(m&&m.open)return;const [y,mo]=k.split('-').map(Number);setTimeout(()=>{if(m&&m.open)return;window.__monthDlg(y,mo-1);window.__applause();save(n=>{n.v2=n.v2||{};n.v2.celeb={last:k}})},700)}catch(e){}};
 })();
 
-/* ---- 2026-11-27.7: housework table seeded once from her image «جدول تنظيف البيت الأسبوعي» (Sat kitchen, Sun bathroom, Mon bedrooms, Tue living room, Wed laundry, Thu full tidy, Fri rest) ---- */
-(function(){
-const SEED={6:'تنظيف المطبخ',0:'تنظيف الحمام',1:'غرف النوم',2:'الصالون',3:'الغسيل',4:'ترتيب شامل'};
-const uid=i=>'ws'+i;
-let busy=false;
-const _r=render;window.render=render=function(){_r();try{if(!state||busy)return;const hl=(state.v2||{}).hl||{};const hw=hl.hw||{};if(hw.seeded)return;busy=true;save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};const w=n.v2.hl.hw=n.v2.hl.hw||{};if(w.seeded)return;w.d=w.d||{};Object.keys(SEED).forEach(k=>{const L=w.d[k]=w.d[k]||[];if(!L.some(x=>x.id===uid(k)))L.push({id:uid(k),n:SEED[k]})});w.seeded=1}).then(()=>{busy=false},()=>{busy=false})}catch(e){busy=false}};
-})();
-
 /* ---- 2026-11-27.8: generic monthly plans (courses/habits by weekday, per-day video counts, start/end). The plan CONTENT is not in this public file: she imports a private JSON once; it is stored in her data (state.v2.plans) and in her backup. ---- */
 (function(){
 const A=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
@@ -423,7 +415,7 @@ const _m=more;window.more=more=function(){const h=_m();return h.replace('<div cl
 function valid(o){if(!o||o.type!=='mariam-plans'||!Array.isArray(o.plans)||!o.plans.length||o.plans.length>40)return null;const out=[];for(const p of o.plans){if(!p||typeof p.id!=='string'||!/^[\w-]{1,40}$/.test(p.id)||typeof p.name!=='string'||!p.name.trim()||p.name.length>80||!isD(p.start)||!isD(p.end)||p.end<p.start)return null;if(p.days!=null&&!(Array.isArray(p.days)&&p.days.every(x=>Number.isInteger(x)&&x>=0&&x<=6)))return null;const n=p.perDay==null?1:p.perDay;if(!Number.isInteger(n)||n<1||n>10)return null;out.push({id:p.id,name:p.name.trim(),days:p.days&&p.days.length?p.days:null,perDay:n,start:p.start,end:p.end,note:typeof p.note==='string'?p.note.slice(0,120):''})}return out}
 document.addEventListener('change',async e=>{if(!e.target||e.target.id!=='planFile'||!state)return;const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;let o;try{if(f.size>200000)throw 0;o=JSON.parse(await f.text())}catch(x){toast('الملف مش خطة صحيحة');return}const L=valid(o);if(!L){toast('الملف مش خطة صحيحة');return}
  if(!confirm('هيضيف '+A(L.length)+' بند للخطة. اللي موجود بنفس الاسم الداخلي بيتحدّث، ومفيش حاجة هتتمسح. نكمل؟'))return;
- await sv(v=>{v.plans=v.plans||[];L.forEach(p=>{const i=v.plans.findIndex(z=>z.id===p.id);if(i>=0)v.plans[i]=p;else v.plans.push(p)})});toast('اتضافت الخطة')});
+ const HWI=(o.housework&&typeof o.housework==='object')?o.housework:{};await sv(v=>{v.plans=v.plans||[];L.forEach(p=>{const i=v.plans.findIndex(z=>z.id===p.id);if(i>=0)v.plans[i]=p;else v.plans.push(p)})});if(Object.keys(HWI).length)await save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};const w=n.v2.hl.hw=n.v2.hl.hw||{};w.d=w.d||{};Object.keys(HWI).forEach(k=>{if(!/^[0-6]$/.test(k)||!Array.isArray(HWI[k]))return;const Ls=w.d[k]=w.d[k]||[];HWI[k].slice(0,10).forEach(t=>{if(typeof t==='string'&&t.trim()&&t.length<=60&&!Ls.some(x=>x.id==='ws'+k||x.n===t.trim()))Ls.push({id:'ws'+k+(Ls.some(x=>x.id==='ws'+k)?'x':''),n:t.trim()})})});w.seeded=1});toast('اتضافت الخطة')});
 document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.closest('[data-pl]');if(!b||!state)return;e.preventDefault();const [a,x,y]=b.dataset.pl.split('|');
  if(a==='imp'){const i=document.getElementById('planFile');if(i)i.click();return}
  if(a==='t'){const k=+y;await sv(v=>{v.pt=v.pt||{};const d=v.pt[date]=v.pt[date]||{};const c=d[x]||0;d[x]=c>=k?k-1:k});const m=document.getElementById('modal');if(m&&m.open&&window.__hub&&/أقسامي/.test(m.innerText))window.__hub()}});
