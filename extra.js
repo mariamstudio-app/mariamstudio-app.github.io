@@ -128,7 +128,7 @@ const _more5=more;window.more=more=function(){let h=_more5();const re=/<button c
 const _more6=more;window.more=more=function(){const h=_more6();const gi=h.indexOf('<div class="grid">');if(gi<0)return h;const e=h.indexOf('</div>',gi);const inner=h.slice(gi+18,e);const tiles=inner.match(/<button class="tile"[\s\S]*?<\/button>/g)||[];if(tiles.join('')!==inner)return h;const ord=['schedTile','houseTile','wtabTile','calTile','monthTile','adhkarTile','journal','friday','linkTile','manage','backup'];const rank=t=>{const m=t.match(/id="([^"]+)"/);const i=m?ord.indexOf(m[1]):-1;return i<0?99:i};const sorted=tiles.map((t,i)=>[t,i]).sort((a,b)=>rank(a[0])-rank(b[0])||a[1]-b[1]).map(x=>x[0]);const last=sorted.length%2?sorted.pop().replace('<button class="tile"','<button class="tile" style="grid-column:1/-1"'):'';return h.slice(0,gi+18)+sorted.join('')+last+h.slice(e)};
 
 /* ---- version + safe update: shows the running version, checks for a newer one, reloads WITHOUT touching saved data ---- */
-const VER='2026-11-27.14';window.APP_VER=VER;
+const VER='2026-11-27.15';window.APP_VER=VER;
 async function appUpdate(){try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update();if(window.caches){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}catch(e){}location.reload()}
 async function verCheck(){try{const t=await (await fetch('extra.js?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const VER='([^']+)'/);if(m&&m[1]!==VER&&!document.getElementById('verBar')){const b=document.createElement('button');b.id='verBar';b.className='soft';b.style.cssText='position:fixed;top:8px;left:8px;right:8px;z-index:40;background:#fff7e6;border:2px solid #b0602e;padding:10px';b.textContent='فيه نسخة أحدث من مريم. اضغطي هنا للتحديث (بياناتك محفوظة)';b.onclick=()=>{if(typeof hasQuick==='function'&&(hasQuick()||busy)){toast('استني الحفظ يخلص');return}appUpdate()};document.body.appendChild(b)}}catch(e){}}
 setTimeout(verCheck,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()});
@@ -423,12 +423,15 @@ document.addEventListener('click',async e=>{const b=e.target.closest&&e.target.c
 
 /* ---- 2026-11-27.12: standalone كورساتي tab (route 'courses') + UI declutter. UI only: no data is deleted or moved. ---- */
 (function(){
+window.__isThuEve=function(){try{const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Riyadh',weekday:'short',hour:'numeric',hour12:false}).formatToParts(new Date());const w=p.find(x=>x.type==='weekday').value,h=+p.find(x=>x.type==='hour').value%24;return w==='Thu'&&h>=18}catch(e){return false}};
 const _v=view;window.view=view=function(){return route==='courses'?('<div class="card" style="margin:0 0 10px"><p class="muted" style="margin:0">كورساتك وخطتك الشهرية في مكان واحد. العلامات هنا هي نفسها اللي في مهامي اليوم.</p></div>'+window.__tCourses()):_v()};
 const _r2=render;window.render=render=function(){_r2();try{
  const n=document.getElementById('nav');
  if(n&&!n.querySelector('[data-go=courses]')){const b=document.createElement('button');b.setAttribute('data-go','courses');b.className=route==='courses'?'active':'';b.innerHTML=icon('sk_edu')+'كورساتي';const w=n.querySelector('[data-go=worship]');if(w)n.insertBefore(b,w);else n.appendChild(b)}
  const a=document.getElementById('app');if(!a)return;
  if(route==='courses'){const h=a.querySelector('h1');if(h)h.textContent='كورساتي'}
+ if(route==='courses'&&!a.querySelector('[data-v2="hub|m"]')){const m=a.querySelector('.card');if(m){const b=document.createElement('button');b.className='soft';b.setAttribute('data-v2','hub|m');b.style.marginTop='8px';b.textContent='مؤقت التركيز (بومودورو)';m.appendChild(b)}}
+ if(route==='home'&&window.__isThuEve()&&!a.querySelector('#thuCard')){const d=document.createElement('div');d.className='card';d.id='thuCard';d.innerHTML='<strong>ملخص أسبوعك جاهز</strong><p class="muted" style="margin:6px 0 8px">النهارده الخميس مساءً. شوفي التزامك بالعبادات والأذكار والمهام في آخر ٧ أيام.</p><button class="soft" data-v2="hub|w">افتحي الملخص</button>';const hero=a.querySelector('.card.hero');if(hero&&hero.nextSibling)hero.parentNode.insertBefore(d,hero.nextSibling);else a.appendChild(d)}
  const cards=[...a.querySelectorAll('.card')];
  const hd=c=>((c.querySelector('h3,strong')||{}).innerText||'').trim();
  if(route==='home'){cards.forEach(c=>{const t=hd(c);if(t==='مهام اليوم'&&!c.querySelector('.task'))c.remove();else if(t==='أقسامي'){c.querySelectorAll('button').forEach(b=>{if(['مهام اليوم','كورساتي','أعمالي'].includes(b.innerText.trim()))b.remove()})}})}
