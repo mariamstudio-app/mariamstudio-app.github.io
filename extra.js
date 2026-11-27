@@ -128,11 +128,11 @@ const _more5=more;window.more=more=function(){let h=_more5();const re=/<button c
 const _more6=more;window.more=more=function(){const h=_more6();const gi=h.indexOf('<div class="grid">');if(gi<0)return h;const e=h.indexOf('</div>',gi);const inner=h.slice(gi+18,e);const tiles=inner.match(/<button class="tile"[\s\S]*?<\/button>/g)||[];if(tiles.join('')!==inner)return h;const ord=['schedTile','houseTile','wtabTile','calTile','monthTile','adhkarTile','journal','friday','linkTile','manage','backup'];const rank=t=>{const m=t.match(/id="([^"]+)"/);const i=m?ord.indexOf(m[1]):-1;return i<0?99:i};const sorted=tiles.map((t,i)=>[t,i]).sort((a,b)=>rank(a[0])-rank(b[0])||a[1]-b[1]).map(x=>x[0]);const last=sorted.length%2?sorted.pop().replace('<button class="tile"','<button class="tile" style="grid-column:1/-1"'):'';return h.slice(0,gi+18)+sorted.join('')+last+h.slice(e)};
 
 /* ---- version + safe update: shows the running version, checks for a newer one, reloads WITHOUT touching saved data ---- */
-const VER='2026-11-27.6';window.APP_VER=VER;
+const VER='2026-11-27.7';window.APP_VER=VER;
 async function appUpdate(){try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update();if(window.caches){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}}catch(e){}location.reload()}
 async function verCheck(){try{const t=await (await fetch('extra.js?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const VER='([^']+)'/);if(m&&m[1]!==VER&&!document.getElementById('verBar')){const b=document.createElement('button');b.id='verBar';b.className='soft';b.style.cssText='position:fixed;top:8px;left:8px;right:8px;z-index:40;background:#fff7e6;border:2px solid #b0602e;padding:10px';b.textContent='فيه نسخة أحدث من مريم. اضغطي هنا للتحديث (بياناتك محفوظة)';b.onclick=()=>{if(typeof hasQuick==='function'&&(hasQuick()||busy)){toast('استني الحفظ يخلص');return}appUpdate()};document.body.appendChild(b)}}catch(e){}}
 setTimeout(verCheck,3000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)verCheck()});
-const _more7=more;window.more=more=function(){const h=_more7();return h+'<p class="muted" style="text-align:center;margin:14px 0">إصدار التطبيق: '+VER+'</p>'};
+const _more7=more;window.more=more=function(){const h=_more7();return h+'<p class="muted" style="text-align:center;margin:14px 0">إصدار التطبيق: <bdi dir="ltr">'+VER+'</bdi></p>'};
 const st=document.createElement('style');st.textContent='.celeb{font-size:22px;color:#c9902c;animation:cel 1.6s ease-in-out infinite alternate;letter-spacing:6px}@keyframes cel{from{opacity:.4;transform:scale(.92)}to{opacity:1;transform:scale(1.08)}}.calday.sel{background:#efe0c4}.calday.today{border-color:var(--rose);border-width:2px}';document.head.appendChild(st);
 window.__monthDlg=(y,m)=>{cy=y;cm=m;monthDlg()};
 })();
@@ -273,17 +273,17 @@ const H=()=>((state.v2||{}).hl)||{};
 const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const sv=fn=>save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};fn(n.v2.hl)});
 const OPT={ex:[
- {u:'https://www.youtube.com/watch?v=FGFfqCjtmS8',t:'10 MIN FULL BODY WORKOUT, Beginner Friendly, no equipment',c:'Pamela Reif',l:'١٠:٣٠ (اتحقق من المدة)'},
- {u:'https://www.youtube.com/watch?v=-woTZrfoF4M',t:'تمرين ١٠ دقائق لنحت وشد الجسم بالمنزل بدون ادوات',c:'بالعربي',l:'المدة مش متحققة'}],
+ {u:'https://www.youtube.com/watch?v=FGFfqCjtmS8',t:'10 MIN FULL BODY WORKOUT, Beginner Friendly, no equipment',c:'Pamela Reif',l:'المدة ١٠:٣٠'},
+ {u:'https://www.youtube.com/watch?v=-woTZrfoF4M',t:'تمرين ١٠ دقائق لنحت وشد الجسم بالمنزل بدون ادوات',c:'شرح بالعربي',l:'المدة مش متحققة'}],
  yg:[
- {u:'https://www.youtube.com/watch?v=g6DdOHaAmSQ',t:'Wake Up, 10 Minute Morning Yoga',c:'Yoga With Adriene',l:'١٠:٣٤ (اتحقق من المدة)'},
- {u:'https://www.youtube.com/watch?v=3X0hEHop8ec',t:'10 min Yoga for Beginners, Gentle & Simple',c:'Yoga with Kassandra',l:'المدة مش متحققة'}]};
+ {u:'https://www.youtube.com/watch?v=g6DdOHaAmSQ',t:'Wake Up | Gentle 10 Minute Morning Yoga',c:'Yoga With Adriene، شرح بالإنجليزي',l:'المدة ١٠:٣٤'},
+ {u:'https://www.youtube.com/watch?v=3X0hEHop8ec',t:'10 min Yoga for Beginners, Gentle & Simple',c:'Yoga with Kassandra، شرح بالإنجليزي',l:'المدة مش متحققة'}]};
 const okUrl=u=>/^https:\/\/((www|m)\.)?(youtube\.com|youtu\.be)\//.test(u);
 const cur=k=>{const v=(H().vid||{})[k];if(v&&typeof v==='object'&&v.custom)return{u:v.custom,t:'رابط اخترتيه بنفسك',c:'',l:''};return OPT[k][Math.min(+v||0,OPT[k].length-1)]};
 const bar=p=>'<div class="progress" style="margin:8px 0"><i style="width:'+p+'%"></i></div>';
 const days7=()=>{const o=[];const b=new Date(date+'T12:00:00+03:00');for(let i=6;i>=0;i--){const x=new Date(b);x.setDate(x.getDate()-i);o.push(x.toLocaleDateString('en-CA',{timeZone:'Asia/Riyadh'}))}return o};
 function vidCard(k,title){const h=H();const v=cur(k);const done=((h.hx||{})[date]||{})[k];const n=days7().filter(d=>((h.hx||{})[d]||{})[k]).length;
- return '<div class="card" style="margin:0 0 12px"><div class="row between"><h3 style="margin:0">'+title+'</h3><span class="muted">'+A(n)+' من ٧ أيام</span></div><div style="display:flex;align-items:center;gap:10px;padding:8px 0"><button class="tick '+(done?'done':'')+'" data-hl="hx|'+k+'" aria-label="'+title+'" style="flex:0 0 40px">'+(done?icon('check'):'')+'</button><span>خلصتها النهارده</span></div><div class="notice" style="margin:6px 0"><div>'+E(v.t)+'</div><small class="muted">'+E(v.c)+(v.l?' • '+E(v.l):'')+'</small></div><div class="row" style="gap:8px;flex-wrap:wrap"><a class="soft" href="'+E(v.u)+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 14px;border-radius:12px;text-decoration:none">افتحي الفيديو على يوتيوب</a><button class="line" data-hl="vn|'+k+'" style="min-height:40px">بديل تاني</button><button class="line" data-hl="vc|'+k+'" style="min-height:40px">رابط من عندي</button></div></div>'}
+ return '<div class="card" style="margin:0 0 12px"><div class="row between"><h3 style="margin:0">'+title+'</h3><span class="muted">'+A(n)+' من ٧ أيام</span></div><div style="display:flex;align-items:center;gap:10px;padding:8px 0"><button class="tick '+(done?'done':'')+'" data-hl="hx|'+k+'" aria-label="'+title+'" style="flex:0 0 40px">'+(done?icon('check'):'')+'</button><span>خلصتها النهارده</span></div><div class="notice" style="margin:6px 0"><div>'+E(v.t)+'</div><small class="muted">'+E(v.c)+(v.l?' • '+E(v.l):'')+'</small></div><div class="row" style="gap:8px;flex-wrap:wrap"><a class="soft" href="'+E(v.u)+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 14px;border-radius:12px;text-decoration:none;color:#7a1f2b;font-weight:700">افتحي الفيديو على يوتيوب</a><button class="line" data-hl="vn|'+k+'" style="min-height:40px">بديل تاني</button><button class="line" data-hl="vc|'+k+'" style="min-height:40px">رابط من عندي</button></div></div>'}
 const MK=[['waist','الوسط'],['hips','الأرداف'],['chest','الصدر'],['arm','الذراع'],['thigh','الفخذ']];
 function chart(L){if(L.length<2)return '';const v=L.map(x=>x.kg);const lo=Math.min(...v),hi=Math.max(...v),r=(hi-lo)||1;const W=300,Hh=70;const pts=v.map((y,i)=>(10+i*(W-20)/(v.length-1)).toFixed(1)+','+(Hh-10-(y-lo)/r*(Hh-20)).toFixed(1)).join(' ');return '<svg viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="تغيّر الوزن" style="width:100%;height:70px;margin:6px 0"><polyline fill="none" stroke="#7a1f2b" stroke-width="2.5" points="'+pts+'"/></svg>'}
 function wCard(){const L=(H().w||[]).slice().sort((a,b)=>a.d<b.d?-1:1);const last=L[L.length-1];const f=L[0];let sum='';if(last&&L.length>1){const dl=+(last.kg-L[L.length-2].kg).toFixed(1),df=+(last.kg-f.kg).toFixed(1);const t=x=>x===0?'زي ما هو':(x>0?'+':'-')+A(Math.abs(x).toString().replace('.','٫'))+' كجم';sum='<p class="muted" style="margin:6px 0">آخر تغيّر عن القياس اللي قبله: <strong>'+t(dl)+'</strong>، ومن أول قياس: <strong>'+t(df)+'</strong>. مجرد أرقام، من غير أهداف أو أحكام.</p>'}
@@ -379,4 +379,12 @@ const pad=n=>String(n).padStart(2,'0');
 function due(){const p=date.split('-').map(Number);const last=new Date(Date.UTC(p[0],p[1],0)).getUTCDate();let y=p[0],m=p[1];if(p[2]<last){m--;if(m<1){m=12;y--}}return y+'-'+pad(m)}
 function hasAct(k){return Object.keys(state.days||{}).some(d=>d.startsWith(k+'-')&&Object.values(state.days[d].done||{}).some(Boolean))}
 const _r=render;window.render=render=function(){_r();try{if(route!=='home'||!state)return;const k=due();const c=((state.v2||{}).celeb)||{};if(c.last===k||!hasAct(k))return;const m=document.getElementById('modal');if(m&&m.open)return;const [y,mo]=k.split('-').map(Number);setTimeout(()=>{if(m&&m.open)return;window.__monthDlg(y,mo-1);window.__applause();save(n=>{n.v2=n.v2||{};n.v2.celeb={last:k}})},700)}catch(e){}};
+})();
+
+/* ---- 2026-11-27.7: housework table seeded once from her image «جدول تنظيف البيت الأسبوعي» (Sat kitchen, Sun bathroom, Mon bedrooms, Tue living room, Wed laundry, Thu full tidy, Fri rest) ---- */
+(function(){
+const SEED={6:'تنظيف المطبخ',0:'تنظيف الحمام',1:'غرف النوم',2:'الصالون',3:'الغسيل',4:'ترتيب شامل'};
+const uid=i=>'ws'+i;
+let busy=false;
+const _r=render;window.render=render=function(){_r();try{if(!state||busy)return;const hl=(state.v2||{}).hl||{};const hw=hl.hw||{};if(hw.seeded)return;busy=true;save(n=>{n.v2=n.v2||{};n.v2.hl=n.v2.hl||{};const w=n.v2.hl.hw=n.v2.hl.hw||{};if(w.seeded)return;w.d=w.d||{};Object.keys(SEED).forEach(k=>{const L=w.d[k]=w.d[k]||[];if(!L.some(x=>x.id===uid(k)))L.push({id:uid(k),n:SEED[k]})});w.seeded=1}).then(()=>{busy=false},()=>{busy=false})}catch(e){busy=false}};
 })();
